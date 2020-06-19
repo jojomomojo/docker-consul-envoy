@@ -10,7 +10,10 @@ done
 if [ ! -z "$SERVICE_CONFIG" ]; then
   # register the service with consul
   echo "Registering service with consul $SERVICE_CONFIG"
-  consul services register "${SERVICE_CONFIG}"
+  IP="$(ip addr show eth0 | awk '$1 == "inet" { print $2 }' | cut -d/ -f1)"
+  cat "${SERVICE_CONFIG}" | sed "s#YYYY#${IP}#g" > /tmp/service.hcl
+  cat /tmp/service.hcl
+  consul services register /tmp/service.hcl
   
   exit_status=$?
   if [ $exit_status -ne 0 ]; then
