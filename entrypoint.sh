@@ -10,7 +10,7 @@ done
 if [ ! -z "$SERVICE_CONFIG" ]; then
   # register the service with consul
   echo "Registering service with consul $SERVICE_CONFIG"
-  consul services register ${SERVICE_CONFIG}
+  consul services register -address '{{ GetInterfaceIP "eth0" }}"' ${SERVICE_CONFIG}
   
   exit_status=$?
   if [ $exit_status -ne 0 ]; then
