@@ -10,20 +10,7 @@ done
 if [ ! -z "$SERVICE_CONFIG" ]; then
   # register the service with consul
   echo "Registering service with consul $SERVICE_CONFIG"
-  cat "${SERVICE_CONFIG}" | \
-    jq --arg addr "$(ip addr show eth0 | awk '$1 == "inet" { print $2 }' | cut -d/ -f1)"  \
-      '.[1].service.port as $port | .[1].service.checks[0].TCP |= "\($addr):\($port)" | .[0].service.address |= $addr' \
-    > "/tmp/service.json"
-  cat /tmp/service.json | jq '.[0]' > /tmp/service-0.json
-  cat /tmp/service.json | jq '.[1]' > /tmp/service-1.json
-
-  set -x
-
-  cat /tmp/service-0.json
-  consul services register /tmp/service-0.json
-
-  cat /tmp/service-1.json
-  consul services register /tmp/service-1.json
+  consul services register "${SERVICE_CONFIG}"
   
   exit_status=$?
   if [ $exit_status -ne 0 ]; then
