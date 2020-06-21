@@ -13,13 +13,28 @@ while true; do
     echo "Registering service with consul $SERVICE_CONFIG"
     IP="$(ip addr show eth0 | awk '$1 == "inet" { print $2 }' | cut -d/ -f1)"
     cat "${SERVICE_CONFIG}" | sed "s#YYYY#${IP}#g" > /tmp/service.hcl
-    cat /tmp/service.hcl
     consul services register /tmp/service.hcl
     
     exit_status=$?
     if [ $exit_status -ne 0 ]; then
-      echo "### Error writing service config: $file ###"
-      cat $file
+      echo "### Error writing service config: /tmp/service.hcl ###"
+      cat /tmp/service.hcl
+      echo ""
+      exit 1
+    fi
+  fi
+
+  if [ ! -z "$SERVICE_PROXY_CONFIG" ]; then
+    # register the service with consul
+    echo "Registering service with consul $SERVICE_PROXY_CONFIG"
+    IP="$(ip addr show eth0 | awk '$1 == "inet" { print $2 }' | cut -d/ -f1)"
+    cat "${SERVICE_PROXY_CONFIG}" | sed "s#YYYY#${IP}#g" > /tmp/service-proxy.hcl
+    consul services register /tmp/service-proxy.hcl
+    
+    exit_status=$?
+    if [ $exit_status -ne 0 ]; then
+      echo "### Error writing service config: /tmp/service-proxy.hcl ###"
+      cat /tmp/service-proxy.hcl
       echo ""
       exit 1
     fi
